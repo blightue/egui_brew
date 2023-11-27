@@ -1,8 +1,8 @@
 use eframe::egui;
 
-use super::top_panel::TopPanel;
-use super::left_panel::LeftPanel;
 use super::central_panel::CentralPanel;
+use super::left_panel::LeftPanel;
+use super::top_panel::TopPanel;
 
 pub struct MainApp {
     top_panel: TopPanel,
@@ -23,7 +23,12 @@ impl MainApp {
 impl eframe::App for MainApp {
     fn update(&mut self, ctx: &eframe::egui::Context, _frame: &mut eframe::Frame) {
         egui::TopBottomPanel::top("Top_Panel").show(ctx, |ui| self.top_panel.show(ui));
-        egui::SidePanel::left("Left_Panel").show(ctx, |ui| self.left_panel.show(ui));
+        egui::SidePanel::left("Left_Panel")
+            // .exact_width(200.0)
+            .resizable(true)
+            .show(ctx, |ui| {
+                self.left_panel.show(ui, &self.top_panel.current_tab)
+            });
         egui::CentralPanel::default().show(ctx, |ui| self.central_panel.show(ui));
     }
 }
