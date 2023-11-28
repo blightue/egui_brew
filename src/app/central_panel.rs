@@ -1,15 +1,9 @@
+pub struct CentralPanel {}
 
-pub struct CentralPanel{
-
-}
-
-impl CentralPanel{
-    pub fn new()->Self{
-        Self{
-
-        }
+impl CentralPanel {
+    pub fn new() -> Self {
+        Self {}
     }
 
-    pub fn show(&mut self, ui: &mut egui::Ui){
-    }
+    pub fn show(&mut self, ui: &mut egui::Ui) {}
 }
