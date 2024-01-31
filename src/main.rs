@@ -2,7 +2,8 @@ use brew_egui::app::mainapp::MainApp;
 use eframe::egui;
 use egui::ViewportBuilder;
 
-fn main() -> Result<(), eframe::Error> {
+#[tokio::main]
+async fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
         viewport: ViewportBuilder {
             title: Some("Brew_EGUI".to_owned()),

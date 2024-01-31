@@ -3,58 +3,62 @@ use std::result::Result;
 
 use tokio::process::Command;
 
-type CLIResult<T> = Result<T, Box<dyn Error>>;
+pub type CliResult<T> = Result<T, Box<dyn Error + Send>>;
 
-pub struct BrewCLI {}
+pub struct BrewCli {}
 
-pub struct CLIOutput<T> {
-    result: T,
-    raw_result: String,
+pub struct CliOutput<T> {
+    pub result: T,
+    pub raw_result: String,
 }
 
-impl BrewCLI {
+impl BrewCli {
     pub fn new() -> Self {
         Self {}
     }
 
-    async fn brew_commands(arguments: &Vec<&str>) -> CLIResult<String> {
+    async fn brew_commands(arguments: &Vec<&str>) -> CliResult<String> {
         let mut cmd = Command::new("brew");
         for arg in arguments {
             cmd.arg(arg);
         }
-        let output = cmd.output().await?;
-        let result = String::from_utf8(output.stdout)?;
+        let output = cmd
+            .output()
+            .await
+            .map_err(|e| -> Box<dyn std::error::Error + Send> { Box::new(e) })?;
+        let result = String::from_utf8(output.stdout)
+            .map_err(|e| -> Box<dyn std::error::Error + Send> { Box::new(e) })?;
         Ok(result)
     }
 
     async fn get_output_and_splitby_line(
         arguments: &Vec<&str>,
-    ) -> CLIResult<CLIOutput<Vec<String>>> {
-        let raw_result = BrewCLI::brew_commands(arguments).await?;
+    ) -> CliResult<CliOutput<Vec<String>>> {
+        let raw_result = BrewCli::brew_commands(arguments).await?;
         let result: Vec<String> = raw_result
             .split("\n")
             .map(|s| s.to_string())
             .collect::<Vec<String>>();
-        Ok(CLIOutput { result, raw_result })
+        Ok(CliOutput { result, raw_result })
     }
 
-    pub async fn list_installed_formula() -> CLIResult<CLIOutput<Vec<String>>> {
-        let result = BrewCLI::get_output_and_splitby_line(&vec!["list", "--formula"]).await?;
+    pub async fn list_installed_formula() -> CliResult<CliOutput<Vec<String>>> {
+        let result = BrewCli::get_output_and_splitby_line(&vec!["list", "--formula"]).await?;
         Ok(result)
     }
 
-    pub async fn list_installed_cask() -> CLIResult<CLIOutput<Vec<String>>> {
-        let result = BrewCLI::get_output_and_splitby_line(&vec!["list", "--cask"]).await?;
+    pub async fn list_installed_cask() -> CliResult<CliOutput<Vec<String>>> {
+        let result = BrewCli::get_output_and_splitby_line(&vec!["list", "--cask"]).await?;
         Ok(result)
     }
 
-    pub async fn list_installable_formulae() -> CLIResult<CLIOutput<Vec<String>>> {
-        let result = BrewCLI::get_output_and_splitby_line(&vec!["formulae"]).await?;
+    pub async fn list_installable_formulae() -> CliResult<CliOutput<Vec<String>>> {
+        let result = BrewCli::get_output_and_splitby_line(&vec!["formulae"]).await?;
         Ok(result)
     }
 
-    pub async fn list_installable_casks() -> CLIResult<CLIOutput<Vec<String>>> {
-        let result = BrewCLI::get_output_and_splitby_line(&vec!["casks"]).await?;
+    pub async fn list_installable_casks() -> CliResult<CliOutput<Vec<String>>> {
+        let result = BrewCli::get_output_and_splitby_line(&vec!["casks"]).await?;
         Ok(result)
     }
 }
@@ -65,19 +69,19 @@ mod tests {
 
     #[tokio::test]
     async fn log_result() {
-        let formula_result = BrewCLI::list_installed_formula().await.unwrap();
+        let formula_result = BrewCli::list_installed_formula().await.unwrap();
         println!(
             "installed formula:\n{:?} ...",
             &formula_result.result[0..10]
         );
-        let cask_result = BrewCLI::list_installed_cask().await.unwrap();
+        let cask_result = BrewCli::list_installed_cask().await.unwrap();
         println!("installed cask:\n{:?} ...", &cask_result.result[0..10]);
-        let formulae_result = BrewCLI::list_installable_formulae().await.unwrap();
+        let formulae_result = BrewCli::list_installable_formulae().await.unwrap();
         println!(
             "installable formula:\n{:?} ...",
             &formulae_result.result[0..10]
         );
-        let casks_result = BrewCLI::list_installable_casks().await.unwrap();
+        let casks_result = BrewCli::list_installable_casks().await.unwrap();
         println!("installable cask:\n{:?} ...", &casks_result.result[0..10]);
     }
 }

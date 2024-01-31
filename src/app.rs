@@ -1,9 +1,11 @@
 pub mod mainapp;
 
-mod top_panel;
-mod left_panel;
 mod central_panel;
+mod left_panel;
+mod top_panel;
 
+mod packagelist;
+mod packagelist_loader;
 
 use std::fmt;
 
