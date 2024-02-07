@@ -9,6 +9,7 @@ pub struct PackageListLoader {
 impl PackageListLoader {
     pub fn new() -> Self {
         let (tx, rx) = channel();
+
         tokio::spawn(async move {
             let mut package_list = PackageList::new();
             package_list.load_all().await;

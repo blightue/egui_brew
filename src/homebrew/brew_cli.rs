@@ -37,6 +37,7 @@ impl BrewCli {
         let raw_result = BrewCli::brew_commands(arguments).await?;
         let result: Vec<String> = raw_result
             .split("\n")
+            .filter(|s| !s.is_empty())
             .map(|s| s.to_string())
             .collect::<Vec<String>>();
         Ok(CliOutput { result, raw_result })
@@ -61,6 +62,16 @@ impl BrewCli {
         let result = BrewCli::get_output_and_splitby_line(&vec!["casks"]).await?;
         Ok(result)
     }
+
+    pub async fn list_outdated_formulae() -> CliResult<CliOutput<Vec<String>>> {
+        let result = BrewCli::get_output_and_splitby_line(&vec!["outdated", "--formula"]).await?;
+        Ok(result)
+    }
+
+    pub async fn list_outdated_casks() -> CliResult<CliOutput<Vec<String>>> {
+        let result = BrewCli::get_output_and_splitby_line(&vec!["outdated", "--cask"]).await?;
+        Ok(result)
+    }
 }
 
 #[cfg(test)]
@@ -83,5 +94,11 @@ mod tests {
         );
         let casks_result = BrewCli::list_installable_casks().await.unwrap();
         println!("installable cask:\n{:?} ...", &casks_result.result[0..10]);
+    }
+
+    #[tokio::test]
+    async fn test_outdated_cli() {
+        let result = BrewCli::list_outdated_formulae().await.unwrap();
+        println!("outdated formula:\n{:?} ...", &result.result[0..10]);
     }
 }

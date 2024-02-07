@@ -1,6 +1,6 @@
+use super::super::homebrew::packagelist_loader::PackageListLoader;
 use super::central_panel::CentralPanel;
 use super::left_panel::LeftPanel;
-use super::packagelist_loader::PackageListLoader;
 use super::top_panel::TopPanel;
 use eframe::egui;
 
@@ -29,8 +29,7 @@ impl eframe::App for MainApp {
         egui::TopBottomPanel::top("Top_Panel").show(ctx, |ui| self.top_panel.show(ui));
         if !self.is_loaded {
             if let Ok(package_list) = self.package_list_loader.try_recv() {
-                self.left_panel
-                    .set_packages(&package_list.installed_formulae.unwrap().result);
+                self.left_panel.set_packages(package_list);
                 self.is_loaded = true;
             }
         }
