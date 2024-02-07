@@ -1,4 +1,4 @@
-use crate::homebrew::brew_cli::{BrewCli, CliOutput, CliResult};
+use crate::homebrew::brew_cli::BrewCli;
 use async_trait::async_trait;
 use std::error::Error;
 use std::fmt::Display;
@@ -8,8 +8,8 @@ use super::{
     package_model::{PackageBrief, PackageType},
 };
 
-type CliVecOutput = CliResult<CliOutput<Vec<String>>>;
-type PackageListLoader = super::async_loader::AsyncLoader<PackageList>;
+// type CliVecOutput = CliResult<CliOutput<Vec<String>>>;
+pub type PackageListLoader = super::async_loader::AsyncLoader<PackageList>;
 
 #[derive(Clone)]
 pub struct PackageList {

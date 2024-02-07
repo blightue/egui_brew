@@ -1,4 +1,4 @@
-use super::super::homebrew::packagelist_loader::PackageListLoader;
+use super::super::homebrew::packagelist::PackageListLoader;
 use super::central_panel::CentralPanel;
 use super::left_panel::LeftPanel;
 use super::top_panel::TopPanel;
@@ -28,7 +28,7 @@ impl eframe::App for MainApp {
     fn update(&mut self, ctx: &eframe::egui::Context, _frame: &mut eframe::Frame) {
         egui::TopBottomPanel::top("Top_Panel").show(ctx, |ui| self.top_panel.show(ui));
         if !self.is_loaded {
-            if let Ok(package_list) = self.package_list_loader.try_recv() {
+            if let Some(package_list) = self.package_list_loader.get() {
                 self.left_panel.set_packages(package_list);
                 self.is_loaded = true;
             }
