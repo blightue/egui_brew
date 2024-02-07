@@ -1,4 +1,4 @@
-use egui::TextStyle;
+use egui::{Layout, TextStyle};
 
 use crate::homebrew::{
     package_model::{PackageBrief, PackageType},
@@ -69,18 +69,15 @@ impl LeftPanel {
             row_height,
             total_rows,
             |ui, row_range| {
-                ui.with_layout(
-                    egui::Layout::top_down_justified(egui::Align::Center),
-                    |ui| {
-                        for i in row_range {
-                            let content = &contents[i].name;
-                            let response = ui.selectable_label(self.selected_index == i, content);
-                            if response.clicked() {
-                                self.selected_index = i;
-                            }
+                ui.with_layout(egui::Layout::top_down_justified(egui::Align::TOP), |ui| {
+                    for i in row_range {
+                        let content = format!("{}", contents[i]);
+                        let response = ui.selectable_label(self.selected_index == i, content);
+                        if response.clicked() {
+                            self.selected_index = i;
                         }
-                    },
-                );
+                    }
+                });
             },
         );
     }
