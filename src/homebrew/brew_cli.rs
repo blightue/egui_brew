@@ -3,6 +3,8 @@ use std::result::Result;
 
 use tokio::process::Command;
 
+use super::package_model::PackageType;
+
 pub type CliResult<T> = Result<T, Box<dyn Error + Send>>;
 
 pub struct BrewCli {}
@@ -72,6 +74,21 @@ impl BrewCli {
         let result = BrewCli::get_output_and_splitby_line(&vec!["outdated", "--cask"]).await?;
         Ok(result)
     }
+
+    pub async fn show_info(
+        package: &str,
+        package_type: PackageType,
+    ) -> CliResult<CliOutput<String>> {
+        let type_desc = match package_type {
+            PackageType::Formula => "--formula",
+            PackageType::Cask => "--cask",
+        };
+        let result = BrewCli::brew_commands(&vec!["info", "--json", type_desc, package]).await?;
+        Ok(CliOutput {
+            result: result.clone(),
+            raw_result: result,
+        })
+    }
 }
 
 #[cfg(test)]
@@ -100,5 +117,13 @@ mod tests {
     async fn test_outdated_cli() {
         let result = BrewCli::list_outdated_formulae().await.unwrap();
         println!("outdated formula:\n{:?} ...", &result.result[0..10]);
+    }
+
+    #[tokio::test]
+    async fn test_show_info() {
+        let result = BrewCli::show_info("git", PackageType::Formula)
+            .await
+            .unwrap();
+        println!("info git:\n{}", result.result);
     }
 }
