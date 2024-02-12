@@ -4,8 +4,7 @@ use std::fmt::Display;
 pub struct PackageBrief {
     pub name: String,
     pub package_type: PackageType,
-    pub installed: bool,
-    pub outdated: bool,
+    pub package_state: PackageState,
 }
 
 impl PackageBrief {
@@ -13,20 +12,25 @@ impl PackageBrief {
         Self {
             name: name,
             package_type: package_type,
-            installed: installed,
-            outdated: outdated,
+            package_state: if installed {
+                if outdated {
+                    PackageState::Outdated
+                } else {
+                    PackageState::Installed
+                }
+            } else {
+                PackageState::Installable
+            },
         }
     }
 }
 
 impl Display for PackageBrief {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let prefix = if self.outdated {
-            "🔄"
-        } else if self.installed {
-            "💾"
-        } else {
-            "🌐"
+        let prefix = match self.package_state {
+            PackageState::Installable => "🌐",
+            PackageState::Installed => "💾",
+            PackageState::Outdated => "🔄",
         };
         let tail_fix = match self.package_type {
             PackageType::Formula => "📦",
@@ -40,4 +44,11 @@ impl Display for PackageBrief {
 pub enum PackageType {
     Formula,
     Cask,
+}
+
+#[derive(Debug, Clone)]
+pub enum PackageState {
+    Installable,
+    Installed,
+    Outdated,
 }

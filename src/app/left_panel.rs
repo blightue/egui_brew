@@ -1,6 +1,7 @@
 use egui::{Layout, TextStyle};
 
 use crate::homebrew::{
+    package_filter::PackageFilter,
     package_model::{PackageBrief, PackageType},
     packagelist::PackageList,
 };
@@ -10,8 +11,7 @@ use super::WindowsTab;
 pub struct LeftPanel {
     packages: Option<PackageList>,
     selected_index: usize,
-    search_text: String,
-    package_type: PackageType,
+    filter: PackageFilter,
 }
 
 impl LeftPanel {
@@ -19,8 +19,7 @@ impl LeftPanel {
         Self {
             packages: None,
             selected_index: 0,
-            search_text: "".to_string(),
-            package_type: PackageType::Formula,
+            filter: PackageFilter::new(),
         }
     }
 
@@ -33,22 +32,24 @@ impl LeftPanel {
 
         ui.separator();
 
-        ui.add(egui::TextEdit::singleline(&mut self.search_text).hint_text("Search🔎"));
+        ui.heading("Filter");
+
+        ui.separator();
+
+        ui.add(egui::TextEdit::singleline(&mut self.filter.name_filter).hint_text("Search🔎"));
 
         ui.spacing();
 
         if let Some(packages) = &self.packages {
-            let contents: Vec<PackageBrief> = if self.search_text.len() > 0 {
-                ui.label(format!("Searching for {}", self.search_text));
-                packages
-                    .list
-                    .clone()
-                    .into_iter()
-                    .filter(|x| x.name.contains(&self.search_text))
-                    .collect()
-            } else {
-                packages.list.clone()
-            };
+            if !self.filter.name_filter.is_empty() {
+                ui.label(format!("Searching for {}", self.filter.name_filter));
+            }
+            let contents: Vec<PackageBrief> = packages
+                .list
+                .clone()
+                .into_iter()
+                .filter(|x| self.filter.is_filtered(x))
+                .collect();
 
             self.show_listview(ui, contents);
         } else {
