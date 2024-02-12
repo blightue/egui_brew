@@ -25,7 +25,7 @@ impl LeftPanel {
         self.packages = Some(packages);
     }
 
-    pub fn show(&mut self, ui: &mut egui::Ui, current_tab: &WindowsTab) {
+    pub fn show(&mut self, ui: &mut egui::Ui) {
         ui.heading("Package List");
 
         ui.separator();
