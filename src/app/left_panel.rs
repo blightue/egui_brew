@@ -28,15 +28,15 @@ impl LeftPanel {
     }
 
     pub fn show(&mut self, ui: &mut egui::Ui, current_tab: &WindowsTab) {
-        ui.heading(format!("{} List", current_tab.to_string()));
+        ui.heading("Package List");
 
         ui.separator();
 
         ui.heading("Filter");
+        self.show_filter(ui);
+        ui.add(egui::TextEdit::singleline(&mut self.filter.name_filter).hint_text("Search🔎"));
 
         ui.separator();
-
-        ui.add(egui::TextEdit::singleline(&mut self.filter.name_filter).hint_text("Search🔎"));
 
         ui.spacing();
 
@@ -81,5 +81,20 @@ impl LeftPanel {
                 });
             },
         );
+    }
+
+    fn show_filter(&mut self, ui: &mut egui::Ui) {
+        ui.horizontal(|ui| {
+            ui.label("Type");
+            ui.toggle_value(&mut self.filter.type_filter.is_formula, "Formula");
+            ui.toggle_value(&mut self.filter.type_filter.is_cask, "Cask");
+        });
+
+        ui.horizontal(|ui| {
+            ui.label("State");
+            ui.toggle_value(&mut self.filter.state_filter.is_installable, "Installable");
+            ui.toggle_value(&mut self.filter.state_filter.is_installed, "Installed");
+            ui.toggle_value(&mut self.filter.state_filter.is_outdated, "Outdated");
+        });
     }
 }

@@ -26,7 +26,7 @@ impl MainApp {
 
 impl eframe::App for MainApp {
     fn update(&mut self, ctx: &eframe::egui::Context, _frame: &mut eframe::Frame) {
-        egui::TopBottomPanel::top("Top_Panel").show(ctx, |ui| self.top_panel.show(ui));
+        // egui::TopBottomPanel::top("Top_Panel").show(ctx, |ui| self.top_panel.show(ui));
         if !self.is_loaded {
             if let Some(package_list) = self.package_list_loader.get() {
                 self.left_panel.set_packages(package_list);
