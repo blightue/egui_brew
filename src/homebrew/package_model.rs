@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct PackageBrief {
     pub name: String,
     pub package_type: PackageType,
@@ -40,13 +40,13 @@ impl Display for PackageBrief {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum PackageType {
     Formula,
     Cask,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum PackageState {
     Installable,
     Installed,

@@ -1,16 +1,14 @@
-use egui::{Layout, TextStyle};
+use egui::TextStyle;
 
 use crate::homebrew::{
-    package_filter::PackageFilter,
-    package_model::{PackageBrief, PackageType},
-    packagelist::PackageList,
+    package_filter::PackageFilter, package_model::PackageBrief, packagelist::PackageList,
 };
 
 use super::WindowsTab;
 
 pub struct LeftPanel {
     packages: Option<PackageList>,
-    selected_index: usize,
+    pub selected_package: Option<PackageBrief>,
     filter: PackageFilter,
 }
 
@@ -18,7 +16,7 @@ impl LeftPanel {
     pub fn new() -> Self {
         Self {
             packages: None,
-            selected_index: 0,
+            selected_package: None,
             filter: PackageFilter::new(),
         }
     }
@@ -73,9 +71,12 @@ impl LeftPanel {
                 ui.with_layout(egui::Layout::top_down_justified(egui::Align::TOP), |ui| {
                     for i in row_range {
                         let content = format!("{}", contents[i]);
-                        let response = ui.selectable_label(self.selected_index == i, content);
+                        let response = ui.selectable_label(
+                            self.selected_package == Some(contents[i].clone()),
+                            content,
+                        );
                         if response.clicked() {
-                            self.selected_index = i;
+                            self.selected_package = Some(contents[i].clone());
                         }
                     }
                 });

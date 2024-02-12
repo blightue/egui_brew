@@ -39,6 +39,8 @@ impl eframe::App for MainApp {
             .show(ctx, |ui| {
                 self.left_panel.show(ui, &self.top_panel.current_tab)
             });
+        self.central_panel
+            .set_package(self.left_panel.selected_package.clone());
         egui::CentralPanel::default().show(ctx, |ui| self.central_panel.show(ui));
     }
 }
