@@ -4,8 +4,6 @@ use crate::homebrew::{
     package_filter::PackageFilter, package_model::PackageBrief, packagelist::PackageList,
 };
 
-use super::WindowsTab;
-
 pub struct LeftPanel {
     packages: Option<PackageList>,
     pub selected_package: Option<PackageBrief>,
