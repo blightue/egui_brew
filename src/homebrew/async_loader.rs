@@ -3,7 +3,6 @@ use std::sync::mpsc::{channel, Receiver};
 
 #[async_trait]
 pub trait Load: Send {
-    fn spawn() -> Self;
     async fn load(&mut self);
 }
 
@@ -18,10 +17,9 @@ impl<T> AsyncLoader<T>
 where
     T: Load + 'static,
 {
-    pub fn new() -> Self {
+    pub fn new(mut loader: T) -> Self {
         let (tx, rx) = channel();
         let futu = async move {
-            let mut loader = T::spawn();
             loader.load().await;
             tx.send(loader).unwrap();
         };

@@ -1,3 +1,5 @@
+use crate::homebrew::packagelist::PackageList;
+
 use super::super::homebrew::packagelist::PackageListLoader;
 use super::central_panel::CentralPanel;
 use super::left_panel::LeftPanel;
@@ -18,7 +20,7 @@ impl MainApp {
             top_panel: TopPanel::new(),
             left_panel: LeftPanel::new(),
             central_panel: CentralPanel::new(),
-            package_list_loader: PackageListLoader::new(),
+            package_list_loader: PackageListLoader::new(PackageList::new()),
             is_loaded: false,
         }
     }

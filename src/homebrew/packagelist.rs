@@ -87,10 +87,6 @@ impl PackageList {
 
 #[async_trait]
 impl Load for PackageList {
-    fn spawn() -> Self {
-        Self::new()
-    }
-
     async fn load(&mut self) {
         self.load_all().await;
     }
