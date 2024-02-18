@@ -2,11 +2,19 @@ use serde;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PackageVersion {
+    pub stable: String,
+    pub head: String,
+    pub bottle: bool,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PackageInfo {
     pub name: String,
     pub full_name: String,
     pub oldnames: Vec<String>,
     pub aliases: Vec<String>,
+    pub versions: PackageVersion,
     pub desc: String,
     pub license: String,
     pub homepage: String,
