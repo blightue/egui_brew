@@ -1,10 +1,14 @@
+use async_trait::async_trait;
 use serde;
 use serde::{Deserialize, Serialize};
+
+use super::async_loader::Load;
+use super::package_model::PackageBrief;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PackageVersion {
     pub stable: String,
-    pub head: String,
+    pub head: Option<String>,
     pub bottle: bool,
 }
 
@@ -14,10 +18,48 @@ pub struct PackageInfo {
     pub full_name: String,
     pub oldnames: Vec<String>,
     pub aliases: Vec<String>,
-    pub versions: PackageVersion,
     pub desc: String,
     pub license: String,
     pub homepage: String,
+    pub versions: PackageVersion,
+}
+
+pub type PackageInfoLoader = super::async_loader::AsyncLoader<PackageInfoHolder>;
+
+pub struct PackageInfoHolder {
+    package_brief: PackageBrief,
+    pub package_info: Option<PackageInfo>,
+}
+
+impl PackageInfoHolder {
+    pub fn new(package_brief: PackageBrief) -> Self {
+        Self {
+            package_brief: package_brief,
+            package_info: None,
+        }
+    }
+    fn from_json(&mut self, json: &str) {
+        let package_info_list: Vec<PackageInfo> = serde_json::from_str(json).unwrap();
+        if package_info_list.len() > 0 {
+            self.package_info = Some(package_info_list[0].clone());
+        } else {
+            self.package_info = None;
+        }
+    }
+}
+
+#[async_trait]
+impl Load for PackageInfoHolder {
+    async fn load(&mut self) {
+        let package_info = super::brew_cli::BrewCli::show_info(
+            &self.package_brief.name.clone(),
+            self.package_brief.package_type.clone(),
+        )
+        .await
+        .unwrap();
+        println!("{}", package_info.result);
+        self.from_json(&package_info.result);
+    }
 }
 
 #[cfg(test)]
