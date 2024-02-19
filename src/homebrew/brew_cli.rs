@@ -83,7 +83,7 @@ impl BrewCli {
             PackageType::Formula => "--formula",
             PackageType::Cask => "--cask",
         };
-        let result = BrewCli::brew_commands(&vec!["info", "--json", type_desc, package]).await?;
+        let result = BrewCli::brew_commands(&vec!["info", "--json=v2", type_desc, package]).await?;
         Ok(CliOutput {
             result: result.clone(),
             raw_result: result,
@@ -124,6 +124,6 @@ mod tests {
         let result = BrewCli::show_info("git", PackageType::Formula)
             .await
             .unwrap();
-        println!("info git:\n{}", result.result);
+        println!("{}", result.result);
     }
 }

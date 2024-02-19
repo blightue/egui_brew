@@ -1,13 +1,15 @@
 use egui::Grid;
 
 use crate::homebrew::{
-    package_info_model::{PackageInfo, PackageInfoHolder, PackageInfoLoader},
+    package_info_model::{
+        FormulaInfo, PackageInfo, PackageInfoHolder, PackageInfoLoader, PackageInfoQuery,
+    },
     package_model::{PackageBrief, PackageState},
 };
 
 pub struct CentralPanel {
     current_package: Option<PackageBrief>,
-    current_info: Option<PackageInfo>,
+    current_info: Option<PackageInfoQuery>,
     current_loader: Option<PackageInfoLoader>,
 }
 
@@ -62,6 +64,10 @@ impl CentralPanel {
         ui.separator();
         ui.heading("Description");
         if let Some(info) = &self.current_info {
+            let info: &dyn PackageInfo = match package.package_type {
+                crate::homebrew::package_model::PackageType::Formula => &info.formulae[0],
+                crate::homebrew::package_model::PackageType::Cask => &info.casks[0],
+            };
             self.show_info_detail(ui, info);
         } else {
             ui.label("Detail Loading...");
@@ -82,26 +88,26 @@ impl CentralPanel {
         });
     }
 
-    fn show_info_detail(&self, ui: &mut egui::Ui, info: &PackageInfo) {
+    fn show_info_detail(&self, ui: &mut egui::Ui, info: &dyn PackageInfo) {
         Grid::new("info_detail")
             .num_columns(2)
             .spacing([40.0, 4.0])
             .striped(true)
             .show(ui, |ui| {
                 ui.label("Name");
-                ui.label(info.name.clone());
+                ui.label(info.get_name());
                 ui.end_row();
 
                 ui.label("Version");
-                ui.label(info.versions.stable.clone());
+                ui.label(info.get_version());
                 ui.end_row();
 
                 ui.label("Description");
-                ui.label(info.desc.clone());
+                ui.label(info.get_desc());
                 ui.end_row();
 
                 ui.label("Homepage");
-                ui.hyperlink(info.homepage.clone());
+                ui.hyperlink(info.get_homepage());
                 ui.end_row();
             });
     }
