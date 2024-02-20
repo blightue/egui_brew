@@ -1,7 +1,9 @@
 use std::error::Error;
+use std::process::Stdio;
 use std::result::Result;
 
-use tokio::process::Command;
+use tokio::io::BufReader;
+use tokio::process::{ChildStdout, Command};
 
 use super::package_model::PackageType;
 
@@ -31,6 +33,20 @@ impl BrewCli {
         let result = String::from_utf8(output.stdout)
             .map_err(|e| -> Box<dyn std::error::Error + Send> { Box::new(e) })?;
         Ok(result)
+    }
+
+    fn brew_commands_with_stdout(arguments: &Vec<&str>) -> CliResult<BufReader<ChildStdout>> {
+        let mut cmd = Command::new("brew");
+        for arg in arguments {
+            cmd.arg(arg);
+        }
+        let mut command = cmd
+            .stdout(Stdio::piped())
+            .stdin(Stdio::piped())
+            .spawn()
+            .map_err(|e| -> Box<dyn std::error::Error + Send> { Box::new(e) })?;
+
+        Ok(BufReader::new(command.stdout.take().unwrap()))
     }
 
     async fn get_output_and_splitby_line(
@@ -89,6 +105,39 @@ impl BrewCli {
             raw_result: result,
         })
     }
+
+    pub fn install_package(
+        package_name: &str,
+        package_type: PackageType,
+    ) -> CliResult<BufReader<ChildStdout>> {
+        BrewCli::brew_commands_with_stdout(&vec![
+            "install",
+            package_type.to_command(),
+            package_name,
+        ])
+    }
+
+    pub fn uninstall_package(
+        package_name: &str,
+        package_type: PackageType,
+    ) -> CliResult<BufReader<ChildStdout>> {
+        BrewCli::brew_commands_with_stdout(&vec![
+            "uninstall",
+            package_type.to_command(),
+            package_name,
+        ])
+    }
+
+    pub fn upgrade_package(
+        package_name: &str,
+        package_type: PackageType,
+    ) -> CliResult<BufReader<ChildStdout>> {
+        BrewCli::brew_commands_with_stdout(&vec![
+            "upgrade",
+            package_type.to_command(),
+            package_name,
+        ])
+    }
 }
 
 #[cfg(test)]
@@ -125,5 +174,10 @@ mod tests {
             .await
             .unwrap();
         println!("{}", result.result);
+    }
+
+    #[tokio::test]
+    async fn test_install_package() {
+        let result = BrewCli::install_package("qbittorrent", PackageType::Cask);
     }
 }

@@ -46,6 +46,25 @@ pub enum PackageType {
     Cask,
 }
 
+impl Display for PackageType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let desc = match self {
+            PackageType::Formula => "Formulae📦",
+            PackageType::Cask => "Casks🍺",
+        };
+        write!(f, "{}", desc)
+    }
+}
+
+impl PackageType {
+    pub fn to_command(&self) -> &str {
+        match self {
+            PackageType::Formula => "--formula",
+            PackageType::Cask => "--cask",
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum PackageState {
     Installable,
