@@ -1,9 +1,9 @@
-use std::error::Error;
-use std::process::Stdio;
+use std::process::{ChildStdout, Stdio};
 use std::result::Result;
+use std::{error::Error, io::BufReader};
 
-use tokio::io::BufReader;
-use tokio::process::{ChildStdout, Command};
+use std::process::Command as stdCommand;
+use tokio::process::Command;
 
 use super::package_model::PackageType;
 
@@ -36,7 +36,7 @@ impl BrewCli {
     }
 
     fn brew_commands_with_stdout(arguments: &Vec<&str>) -> CliResult<BufReader<ChildStdout>> {
-        let mut cmd = Command::new("brew");
+        let mut cmd = stdCommand::new("brew");
         for arg in arguments {
             cmd.arg(arg);
         }
@@ -46,7 +46,7 @@ impl BrewCli {
             .spawn()
             .map_err(|e| -> Box<dyn std::error::Error + Send> { Box::new(e) })?;
 
-        Ok(BufReader::new(command.stdout.take().unwrap()))
+        Ok(BufReader::new(command.stdout.unwrap()))
     }
 
     async fn get_output_and_splitby_line(
@@ -142,6 +142,8 @@ impl BrewCli {
 
 #[cfg(test)]
 mod tests {
+    use std::io::{BufRead, Read};
+
     use super::*;
 
     #[tokio::test]
@@ -176,8 +178,37 @@ mod tests {
         println!("{}", result.result);
     }
 
-    #[tokio::test]
-    async fn test_install_package() {
+    #[test]
+    fn test_install_package() {
         let result = BrewCli::install_package("qbittorrent", PackageType::Cask);
+        if let Ok(mut reader) = result {
+            let mut buffer = String::new();
+            loop {
+                if let Ok(size) = reader.read_line(&mut buffer) {
+                    if size == 0 {
+                        break;
+                    }
+                    println!("{}", buffer);
+                    buffer.clear();
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn test_uninstall_package() {
+        let result = BrewCli::uninstall_package("qbittorrent", PackageType::Cask);
+        if let Ok(mut reader) = result {
+            let mut buffer = String::new();
+            loop {
+                if let Ok(size) = reader.read_line(&mut buffer) {
+                    if size == 0 {
+                        break;
+                    }
+                    println!("{}", buffer);
+                    buffer.clear();
+                }
+            }
+        }
     }
 }
