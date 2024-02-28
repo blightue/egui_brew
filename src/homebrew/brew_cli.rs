@@ -1,10 +1,15 @@
-use std::process::{ChildStdout, Stdio};
+use std::io::BufWriter;
+use std::process::Stdio;
 use std::result::Result;
+use std::sync::mpsc::channel;
+use std::sync::Arc;
+use std::thread;
 use std::{error::Error, io::BufReader};
 
 use std::process::Command as stdCommand;
 use tokio::process::Command;
 
+use super::cli_handle::CliHandle;
 use super::package_model::PackageType;
 
 pub type CliResult<T> = Result<T, Box<dyn Error + Send>>;
@@ -35,18 +40,30 @@ impl BrewCli {
         Ok(result)
     }
 
-    fn brew_commands_with_stdout(arguments: &Vec<&str>) -> CliResult<BufReader<ChildStdout>> {
-        let mut cmd = stdCommand::new("brew");
-        for arg in arguments {
-            cmd.arg(arg);
-        }
-        let mut command = cmd
-            .stdout(Stdio::piped())
-            .stdin(Stdio::piped())
-            .spawn()
-            .map_err(|e| -> Box<dyn std::error::Error + Send> { Box::new(e) })?;
-
-        Ok(BufReader::new(command.stdout.unwrap()))
+    fn brew_commands_with_stdout(arguments: &Vec<&str>) -> CliResult<CliHandle> {
+        let (out_tx, out_rx) = channel();
+        let (in_tx, in_rx) = channel();
+        let (child_tx, child_rx) = channel();
+        let args = arguments
+            .iter()
+            .map(|s| s.to_string())
+            .collect::<Vec<String>>();
+        thread::spawn(move || {
+            let mut child = stdCommand::new("brew")
+                .args(args)
+                .stdout(Stdio::piped())
+                .stdin(Stdio::piped())
+                .spawn()
+                .unwrap();
+            out_tx.send(child.stdout.take().unwrap()).unwrap();
+            in_tx.send(child.stdin.take().unwrap()).unwrap();
+            child_tx.send(Arc::new(child)).unwrap();
+        });
+        Ok(CliHandle::new(
+            BufReader::new(out_rx.recv().unwrap()),
+            BufWriter::new(in_rx.recv().unwrap()),
+            child_rx.recv().unwrap(),
+        ))
     }
 
     async fn get_output_and_splitby_line(
@@ -106,10 +123,7 @@ impl BrewCli {
         })
     }
 
-    pub fn install_package(
-        package_name: &str,
-        package_type: PackageType,
-    ) -> CliResult<BufReader<ChildStdout>> {
+    pub fn install_package(package_name: &str, package_type: PackageType) -> CliResult<CliHandle> {
         BrewCli::brew_commands_with_stdout(&vec![
             "install",
             package_type.to_command(),
@@ -120,7 +134,7 @@ impl BrewCli {
     pub fn uninstall_package(
         package_name: &str,
         package_type: PackageType,
-    ) -> CliResult<BufReader<ChildStdout>> {
+    ) -> CliResult<CliHandle> {
         BrewCli::brew_commands_with_stdout(&vec![
             "uninstall",
             package_type.to_command(),
@@ -128,10 +142,7 @@ impl BrewCli {
         ])
     }
 
-    pub fn upgrade_package(
-        package_name: &str,
-        package_type: PackageType,
-    ) -> CliResult<BufReader<ChildStdout>> {
+    pub fn upgrade_package(package_name: &str, package_type: PackageType) -> CliResult<CliHandle> {
         BrewCli::brew_commands_with_stdout(&vec![
             "upgrade",
             package_type.to_command(),
@@ -142,7 +153,8 @@ impl BrewCli {
 
 #[cfg(test)]
 mod tests {
-    use std::io::{BufRead, Read};
+
+    use std::io::BufRead;
 
     use super::*;
 
@@ -181,10 +193,10 @@ mod tests {
     #[test]
     fn test_install_package() {
         let result = BrewCli::install_package("qbittorrent", PackageType::Cask);
-        if let Ok(mut reader) = result {
+        if let Ok(mut handle) = result {
             let mut buffer = String::new();
             loop {
-                if let Ok(size) = reader.read_line(&mut buffer) {
+                if let Ok(size) = handle.stdout.read_line(&mut buffer) {
                     if size == 0 {
                         break;
                     }
@@ -198,10 +210,10 @@ mod tests {
     #[test]
     fn test_uninstall_package() {
         let result = BrewCli::uninstall_package("qbittorrent", PackageType::Cask);
-        if let Ok(mut reader) = result {
+        if let Ok(mut handle) = result {
             let mut buffer = String::new();
             loop {
-                if let Ok(size) = reader.read_line(&mut buffer) {
+                if let Ok(size) = handle.stdout.read_line(&mut buffer) {
                     if size == 0 {
                         break;
                     }
