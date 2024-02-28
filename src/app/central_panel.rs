@@ -1,6 +1,6 @@
 use std::io::BufRead;
 
-use egui::{Grid, Label, ScrollArea};
+use egui::{Button, Grid, Label, ScrollArea};
 
 use crate::homebrew::{
     cli_handle::CliHandle,
@@ -49,7 +49,7 @@ impl CentralPanel {
         }
     }
 
-    fn update_command_output(&mut self) {
+    fn update_clihandle(&mut self) {
         if let Some(clihandle) = &mut self.current_clihandle {
             let mut line = String::new();
             if let Ok(size) = clihandle.stdout.read_line(&mut line) {
@@ -58,12 +58,26 @@ impl CentralPanel {
                     self.command_output.push(line);
                 }
             }
+            let mut finished = false;
+            if let Ok(Some(status)) = clihandle.child.lock().unwrap().try_wait() {
+                if status.success() {
+                    self.command_output.push("Command Success".to_string());
+                } else {
+                    let code = status.code().unwrap();
+                    self.command_output
+                        .push(format!("Command Failed with code: {}", code));
+                }
+                finished = true;
+            }
+            if finished {
+                self.current_clihandle = None;
+            }
         }
     }
 
     pub fn show(&mut self, ui: &mut egui::Ui) {
         self.check_loader();
-        self.update_command_output();
+        self.update_clihandle();
         ui.heading("Package Detail");
         ui.separator();
         if let Some(package) = &self.current_package.clone() {
@@ -96,30 +110,44 @@ impl CentralPanel {
             ui.spinner();
         }
         ui.separator();
-        ui.horizontal(|ui| match package.package_state {
-            PackageState::Installed => {
-                if ui.button("Uninstall").clicked() {
-                    if let Some(package) = &self.current_package {
-                        self.current_clihandle = Some(
-                            BrewCli::uninstall_package(&package.name, package.package_type.clone())
-                                .unwrap(),
-                        );
-                    }
+        ui.horizontal(|ui| {
+            let is_clirunning = self.current_clihandle.is_some();
+            let installable = package.package_state == PackageState::Installable;
+            let upgradeable = package.package_state == PackageState::Outdated;
+            let uninstallable = package.package_state == PackageState::Installed
+                || package.package_state == PackageState::Outdated;
+            if ui
+                .add_enabled(!is_clirunning & installable, Button::new("Install"))
+                .clicked()
+            {
+                if let Some(package) = &self.current_package {
+                    self.current_clihandle = Some(
+                        BrewCli::install_package(&package.name, package.package_type.clone())
+                            .unwrap(),
+                    );
                 }
             }
-            PackageState::Installable => {
-                if ui.button("Install").clicked() {
-                    if let Some(package) = &self.current_package {
-                        self.current_clihandle = Some(
-                            BrewCli::install_package(&package.name, package.package_type.clone())
-                                .unwrap(),
-                        );
-                    }
+            if ui
+                .add_enabled(!is_clirunning & uninstallable, Button::new("Uninstall"))
+                .clicked()
+            {
+                if let Some(package) = &self.current_package {
+                    self.current_clihandle = Some(
+                        BrewCli::uninstall_package(&package.name, package.package_type.clone())
+                            .unwrap(),
+                    );
                 }
             }
-            PackageState::Outdated => {
-                ui.button("Update");
-                if ui.button("Uninstall").clicked() {}
+            if ui
+                .add_enabled(!is_clirunning & upgradeable, Button::new("Upgrade"))
+                .clicked()
+            {
+                if let Some(package) = &self.current_package {
+                    self.current_clihandle = Some(
+                        BrewCli::upgrade_package(&package.name, package.package_type.clone())
+                            .unwrap(),
+                    );
+                }
             }
         });
     }

@@ -57,7 +57,7 @@ impl BrewCli {
                 .unwrap();
             out_tx.send(child.stdout.take().unwrap()).unwrap();
             in_tx.send(child.stdin.take().unwrap()).unwrap();
-            child_tx.send(Arc::new(child)).unwrap();
+            child_tx.send(child).unwrap();
         });
         Ok(CliHandle::new(
             BufReader::new(out_rx.recv().unwrap()),
