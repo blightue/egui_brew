@@ -1,9 +1,22 @@
+use std::fmt::Display;
+
 use super::cli_handle::CliHandle;
 
+#[derive(Debug, Clone, PartialEq, Copy)]
 pub enum PkgManageType {
     Install,
     Uninstall,
     Upgrade,
+}
+
+impl Display for PkgManageType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            PkgManageType::Install => write!(f, "install"),
+            PkgManageType::Uninstall => write!(f, "uninstall"),
+            PkgManageType::Upgrade => write!(f, "upgrade"),
+        }
+    }
 }
 
 pub struct PkgCliHandle {

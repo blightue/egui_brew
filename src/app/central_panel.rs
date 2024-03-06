@@ -16,6 +16,7 @@ pub struct CentralPanel {
     current_loader: Option<PackageInfoLoader>,
     current_clihandle: Option<PkgCliHandle>,
     command_output: Vec<String>,
+    pub successed_manage: Option<PkgCliHandle>,
 }
 
 impl CentralPanel {
@@ -26,6 +27,7 @@ impl CentralPanel {
             current_loader: None,
             current_clihandle: None,
             command_output: Vec::new(),
+            successed_manage: None,
         }
     }
 
@@ -50,6 +52,8 @@ impl CentralPanel {
     }
 
     fn update_clihandle(&mut self) {
+        let mut finished = false;
+        let mut success = false;
         if let Some(clihandle) = &mut self.current_clihandle {
             let mut line = String::new();
             if let Ok(size) = clihandle.cli_handle.stdout.read_line(&mut line) {
@@ -58,10 +62,13 @@ impl CentralPanel {
                     self.command_output.push(line);
                 }
             }
-            let mut finished = false;
             if let Ok(Some(status)) = clihandle.cli_handle.child.lock().unwrap().try_wait() {
                 if status.success() {
-                    self.command_output.push("Command Success".to_string());
+                    self.command_output.push(format!(
+                        "{} {} success",
+                        clihandle.cli_type, clihandle.package
+                    ));
+                    success = true;
                 } else {
                     let code = status.code().unwrap();
                     self.command_output
@@ -69,7 +76,11 @@ impl CentralPanel {
                 }
                 finished = true;
             }
-            if finished {
+        }
+        if finished {
+            if success {
+                self.successed_manage = self.current_clihandle.take();
+            } else {
                 self.current_clihandle = None;
             }
         }
@@ -160,6 +171,9 @@ impl CentralPanel {
                         .unwrap(),
                     );
                 }
+            }
+            if is_clirunning {
+                ui.spinner();
             }
         });
     }

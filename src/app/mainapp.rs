@@ -1,4 +1,6 @@
+use crate::homebrew::package_model::PackageState;
 use crate::homebrew::packagelist::PackageList;
+use crate::homebrew::pkg_cli_handle::PkgManageType;
 
 use super::super::homebrew::packagelist::PackageListLoader;
 use super::central_panel::CentralPanel;
@@ -42,5 +44,14 @@ impl eframe::App for MainApp {
         self.central_panel
             .set_package(self.left_panel.selected_package.clone());
         egui::CentralPanel::default().show(ctx, |ui| self.central_panel.show(ui));
+        if let Some(pkg_handle) = &self.central_panel.successed_manage {
+            let new_state = match pkg_handle.cli_type {
+                PkgManageType::Install => PackageState::Installed,
+                PkgManageType::Uninstall => PackageState::Installable,
+                PkgManageType::Upgrade => PackageState::Installed,
+            };
+            self.left_panel
+                .update_package_state(pkg_handle.package.clone(), new_state);
+        }
     }
 }

@@ -142,7 +142,7 @@ impl BrewCli {
             Ok(handle) => Ok(PkgCliHandle::new(
                 handle,
                 package_name.to_string(),
-                PkgManageType::Install,
+                manage_type,
             )),
             Err(e) => Err(e),
         }

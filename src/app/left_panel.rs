@@ -1,7 +1,9 @@
 use egui::TextStyle;
 
 use crate::homebrew::{
-    package_filter::PackageFilter, package_model::PackageBrief, packagelist::PackageList,
+    package_filter::PackageFilter,
+    package_model::{PackageBrief, PackageState},
+    packagelist::PackageList,
 };
 
 pub struct LeftPanel {
@@ -21,6 +23,19 @@ impl LeftPanel {
 
     pub fn set_packages(&mut self, packages: PackageList) {
         self.packages = Some(packages);
+    }
+
+    pub fn update_package_state(&mut self, package: String, state: PackageState) {
+        if let Some(packages) = &mut self.packages {
+            if let Some(index) = packages.list.iter().position(|p| p.name == package) {
+                packages.list[index].package_state = state;
+                if let Some(selected_package) = &self.selected_package {
+                    if selected_package.name == package {
+                        self.selected_package = Some(packages.list[index].clone());
+                    }
+                }
+            }
+        }
     }
 
     pub fn show(&mut self, ui: &mut egui::Ui) {
