@@ -5,11 +5,9 @@ use crate::homebrew::pkg_cli_handle::PkgManageType;
 use super::super::homebrew::packagelist::PackageListLoader;
 use super::central_panel::CentralPanel;
 use super::left_panel::LeftPanel;
-use super::top_panel::TopPanel;
 use eframe::egui;
 
 pub struct MainApp {
-    top_panel: TopPanel,
     left_panel: LeftPanel,
     central_panel: CentralPanel,
     package_list_loader: PackageListLoader,
@@ -19,7 +17,6 @@ pub struct MainApp {
 impl MainApp {
     pub fn new() -> Self {
         Self {
-            top_panel: TopPanel::new(),
             left_panel: LeftPanel::new(),
             central_panel: CentralPanel::new(),
             package_list_loader: PackageListLoader::new(PackageList::new()),
