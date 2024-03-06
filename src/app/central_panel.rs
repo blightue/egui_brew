@@ -65,9 +65,15 @@ impl CentralPanel {
             if let Ok(Some(status)) = clihandle.cli_handle.child.lock().unwrap().try_wait() {
                 if status.success() {
                     self.command_output.push(format!(
-                        "{} {} success",
+                        "==== {} {} success! ====",
                         clihandle.cli_type, clihandle.package
                     ));
+                    self.current_package.as_mut().unwrap().package_state = match clihandle.cli_type
+                    {
+                        PkgManageType::Install => PackageState::Installed,
+                        PkgManageType::Uninstall => PackageState::Installable,
+                        PkgManageType::Upgrade => PackageState::Installed,
+                    };
                     success = true;
                 } else {
                     let code = status.code().unwrap();
