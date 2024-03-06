@@ -5,3 +5,4 @@ pub mod package_filter;
 pub mod package_info_model;
 pub mod package_model;
 pub mod packagelist;
+pub mod pkg_cli_handle;

@@ -3,9 +3,9 @@ use std::io::BufRead;
 use egui::{Button, Grid, Label, ScrollArea};
 
 use crate::homebrew::{
-    cli_handle::CliHandle,
     package_info_model::{PackageInfo, PackageInfoHolder, PackageInfoLoader, PackageInfoQuery},
     package_model::{PackageBrief, PackageState},
+    pkg_cli_handle::{PkgCliHandle, PkgManageType},
 };
 
 use crate::homebrew::brew_cli::BrewCli;
@@ -14,7 +14,7 @@ pub struct CentralPanel {
     current_package: Option<PackageBrief>,
     current_info: Option<PackageInfoQuery>,
     current_loader: Option<PackageInfoLoader>,
-    current_clihandle: Option<CliHandle>,
+    current_clihandle: Option<PkgCliHandle>,
     command_output: Vec<String>,
 }
 
@@ -52,14 +52,14 @@ impl CentralPanel {
     fn update_clihandle(&mut self) {
         if let Some(clihandle) = &mut self.current_clihandle {
             let mut line = String::new();
-            if let Ok(size) = clihandle.stdout.read_line(&mut line) {
+            if let Ok(size) = clihandle.cli_handle.stdout.read_line(&mut line) {
                 if size > 0 {
                     let line = line.trim_end_matches("\n").to_string();
                     self.command_output.push(line);
                 }
             }
             let mut finished = false;
-            if let Ok(Some(status)) = clihandle.child.lock().unwrap().try_wait() {
+            if let Ok(Some(status)) = clihandle.cli_handle.child.lock().unwrap().try_wait() {
                 if status.success() {
                     self.command_output.push("Command Success".to_string());
                 } else {
@@ -122,8 +122,12 @@ impl CentralPanel {
             {
                 if let Some(package) = &self.current_package {
                     self.current_clihandle = Some(
-                        BrewCli::install_package(&package.name, package.package_type.clone())
-                            .unwrap(),
+                        BrewCli::manage_package(
+                            &package.name,
+                            package.package_type,
+                            PkgManageType::Install,
+                        )
+                        .unwrap(),
                     );
                 }
             }
@@ -133,8 +137,12 @@ impl CentralPanel {
             {
                 if let Some(package) = &self.current_package {
                     self.current_clihandle = Some(
-                        BrewCli::uninstall_package(&package.name, package.package_type.clone())
-                            .unwrap(),
+                        BrewCli::manage_package(
+                            &package.name,
+                            package.package_type,
+                            PkgManageType::Uninstall,
+                        )
+                        .unwrap(),
                     );
                 }
             }
@@ -144,8 +152,12 @@ impl CentralPanel {
             {
                 if let Some(package) = &self.current_package {
                     self.current_clihandle = Some(
-                        BrewCli::upgrade_package(&package.name, package.package_type.clone())
-                            .unwrap(),
+                        BrewCli::manage_package(
+                            &package.name,
+                            package.package_type,
+                            PkgManageType::Upgrade,
+                        )
+                        .unwrap(),
                     );
                 }
             }

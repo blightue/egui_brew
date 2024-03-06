@@ -40,7 +40,7 @@ impl Display for PackageBrief {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Copy)]
 pub enum PackageType {
     Formula,
     Cask,

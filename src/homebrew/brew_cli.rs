@@ -2,7 +2,6 @@ use std::io::BufWriter;
 use std::process::Stdio;
 use std::result::Result;
 use std::sync::mpsc::channel;
-use std::sync::Arc;
 use std::thread;
 use std::{error::Error, io::BufReader};
 
@@ -11,6 +10,7 @@ use tokio::process::Command;
 
 use super::cli_handle::CliHandle;
 use super::package_model::PackageType;
+use super::pkg_cli_handle::{PkgCliHandle, PkgManageType};
 
 pub type CliResult<T> = Result<T, Box<dyn Error + Send>>;
 
@@ -123,12 +123,29 @@ impl BrewCli {
         })
     }
 
-    pub fn install_package(package_name: &str, package_type: PackageType) -> CliResult<CliHandle> {
-        BrewCli::brew_commands_with_stdout(&vec![
-            "install",
+    pub fn manage_package(
+        package_name: &str,
+        package_type: PackageType,
+        manage_type: PkgManageType,
+    ) -> CliResult<PkgCliHandle> {
+        let manage_command = match manage_type {
+            PkgManageType::Install => "install",
+            PkgManageType::Uninstall => "uninstall",
+            PkgManageType::Upgrade => "upgrade",
+        };
+        let clihandle = BrewCli::brew_commands_with_stdout(&vec![
+            manage_command,
             package_type.to_command(),
             package_name,
-        ])
+        ]);
+        match clihandle {
+            Ok(handle) => Ok(PkgCliHandle::new(
+                handle,
+                package_name.to_string(),
+                PkgManageType::Install,
+            )),
+            Err(e) => Err(e),
+        }
     }
 
     pub fn uninstall_package(
@@ -192,11 +209,12 @@ mod tests {
 
     #[test]
     fn test_install_package() {
-        let result = BrewCli::install_package("qbittorrent", PackageType::Cask);
+        let result =
+            BrewCli::manage_package("qbittorrent", PackageType::Cask, PkgManageType::Install);
         if let Ok(mut handle) = result {
             let mut buffer = String::new();
             loop {
-                if let Ok(size) = handle.stdout.read_line(&mut buffer) {
+                if let Ok(size) = handle.cli_handle.stdout.read_line(&mut buffer) {
                     if size == 0 {
                         break;
                     }
@@ -209,11 +227,12 @@ mod tests {
 
     #[test]
     fn test_uninstall_package() {
-        let result = BrewCli::uninstall_package("qbittorrent", PackageType::Cask);
+        let result =
+            BrewCli::manage_package("qbittorrent", PackageType::Cask, PkgManageType::Uninstall);
         if let Ok(mut handle) = result {
             let mut buffer = String::new();
             loop {
-                if let Ok(size) = handle.stdout.read_line(&mut buffer) {
+                if let Ok(size) = handle.cli_handle.stdout.read_line(&mut buffer) {
                     if size == 0 {
                         break;
                     }
