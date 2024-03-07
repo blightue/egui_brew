@@ -1,4 +1,4 @@
-# HomeBrew EGUI
+# 🍺Homebrew EGUI
 A macOS GUI application for package manager [Homebrew](https://brew.sh/) which is based on [egui](https://www.egui.rs/).
 
 ## Features
