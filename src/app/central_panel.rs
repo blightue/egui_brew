@@ -90,9 +90,12 @@ impl CentralPanel {
         }
     }
 
-    pub fn show(&mut self, ui: &mut egui::Ui) {
+    pub fn show(&mut self, ui: &mut egui::Ui, ctx: &eframe::egui::Context) {
         self.check_loader();
         self.update_clihandle();
+        if self.current_clihandle.is_some() {
+            ctx.request_repaint();
+        }
         ui.heading("Package Detail");
         ui.separator();
         if let Some(package) = &self.current_package.clone() {

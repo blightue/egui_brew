@@ -40,7 +40,7 @@ impl eframe::App for MainApp {
             .show(ctx, |ui| self.left_panel.show(ui));
         self.central_panel
             .set_package(self.left_panel.selected_package.clone());
-        egui::CentralPanel::default().show(ctx, |ui| self.central_panel.show(ui));
+        egui::CentralPanel::default().show(ctx, |ui| self.central_panel.show(ui, ctx));
         if let Some(pkg_handle) = &self.central_panel.successed_manage {
             let new_state = match pkg_handle.cli_type {
                 PkgManageType::Install => PackageState::Installed,
