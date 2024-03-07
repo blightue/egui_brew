@@ -52,9 +52,7 @@ impl CentralPanel {
     }
 
     fn update_clihandle(&mut self) {
-        let mut finished = false;
-        let mut success = false;
-        if let Some(clihandle) = &mut self.current_clihandle {
+        if let Some(mut clihandle) = self.current_clihandle.take() {
             let mut line = String::new();
             if let Ok(size) = clihandle.cli_handle.stdout.read_line(&mut line) {
                 if size > 0 {
@@ -62,33 +60,33 @@ impl CentralPanel {
                     self.command_output.push(line);
                 }
             }
-            if let Ok(Some(status)) = clihandle.cli_handle.child.lock().unwrap().try_wait() {
+            let status = clihandle.cli_handle.child.lock().unwrap().try_wait();
+            if let Ok(Some(status)) = status {
                 if status.success() {
                     self.command_output.push(format!(
                         "==== {} {} success! ====",
                         clihandle.cli_type, clihandle.package
                     ));
-                    self.current_package.as_mut().unwrap().package_state = match clihandle.cli_type
-                    {
-                        PkgManageType::Install => PackageState::Installed,
-                        PkgManageType::Uninstall => PackageState::Installable,
-                        PkgManageType::Upgrade => PackageState::Installed,
-                    };
-                    success = true;
+                    self.update_pkg_state(clihandle.cli_type);
+                    self.successed_manage = Some(clihandle); // successed, put it to successed_manage
                 } else {
                     let code = status.code().unwrap();
                     self.command_output
                         .push(format!("Command Failed with code: {}", code));
                 }
-                finished = true;
+            } else {
+                self.current_clihandle = Some(clihandle); // not finished, put it back
             }
         }
-        if finished {
-            if success {
-                self.successed_manage = self.current_clihandle.take();
-            } else {
-                self.current_clihandle = None;
-            }
+    }
+
+    fn update_pkg_state(&mut self, manage_type: PkgManageType) {
+        if let Some(package) = &mut self.current_package {
+            package.package_state = match manage_type {
+                PkgManageType::Install => PackageState::Installed,
+                PkgManageType::Uninstall => PackageState::Installable,
+                PkgManageType::Upgrade => PackageState::Installed,
+            };
         }
     }
 
