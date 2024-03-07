@@ -2,6 +2,7 @@
 name = "brew_egui"
 version = "0.1.0"
 edition = "2021"
+description = "A macOS GUI application for package manager Homebrew which is based on egui."
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -10,6 +11,7 @@ async-trait = "0.1"
 eframe = "0.24"
 egui = "0.24"
 egui_extras = "0.24.0"
+image = "0.24.9"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tokio = { version = "1.32", features = [
@@ -19,3 +21,10 @@ tokio = { version = "1.32", features = [
     "rt-multi-thread",
     "io-util",
 ] }
+
+[package.metadata.bundle]
+name = "EGUI_Brew"
+identifier = "com.suisuishou.eguibrew"
+icon = ["assets/icons/beer-mug_1f37a.png"]
+version = "0.1.0"
+category = "Developer Tool"

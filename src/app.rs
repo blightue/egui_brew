@@ -1,3 +1,4 @@
+pub mod app_icon;
 pub mod mainapp;
 
 mod central_panel;

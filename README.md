@@ -1,4 +1,4 @@
-# 🍺Homebrew EGUI
+# 🍺egui_brew
 A macOS GUI application for package manager [Homebrew](https://brew.sh/) which is based on [egui](https://www.egui.rs/).
 
 ## Features
@@ -7,9 +7,9 @@ A macOS GUI application for package manager [Homebrew](https://brew.sh/) which i
 | Package Query  | 0.1.0(init)  | Filter by Formula/Cask Installable/Installed/Outdated Search by name |
 | Package Manage | 0.1.0(init)  | Install/Uninstall/Upgrade pkg                                        |
 
-## TodoList
+## Todolist
 - [ ] CI/CD auto distribute
-- [ ] run behind proxy
+- [ ] manage package behind proxy
 - [ ] homebrew cli test and init
 - [ ] progressive loading package list
 - [ ] multi-pkg manage
