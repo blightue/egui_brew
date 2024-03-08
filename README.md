@@ -1,4 +1,8 @@
-# 🍺egui_brew
+<h1 style="margin-bottom:0; display:flex; align-items:center;">
+    <img src="assets/icons/beer-mug_1f37a.png" style="width:1.345em;height:1.345em;"/>
+    egui_brew
+</h1>
+
 A macOS GUI application for package manager [Homebrew](https://brew.sh/) which is based on [egui](https://www.egui.rs/).
 
 ![GitHub License](https://img.shields.io/github/license/blightue/brew_egui)
