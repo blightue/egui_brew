@@ -1,6 +1,9 @@
 # 🍺egui_brew
 A macOS GUI application for package manager [Homebrew](https://brew.sh/) which is based on [egui](https://www.egui.rs/).
 
+![GitHub License](https://img.shields.io/github/license/blightue/brew_egui)
+![GitHub Release](https://img.shields.io/github/v/release/blightue/brew_egui)
+
 ## Features
 | Feature        | Impl version | Detail                                                               |
 | -------------- | ------------ | -------------------------------------------------------------------- |
@@ -13,3 +16,8 @@ A macOS GUI application for package manager [Homebrew](https://brew.sh/) which i
 - [ ] homebrew cli test and init
 - [ ] progressive loading package list
 - [ ] multi-pkg manage
+
+## How to use
+1. Download the latest version from [release](https://github.com/blightue/egui_brew/releases)
+2. Unzip the file and move the app to the Application folder
+3. Open the app and enjoy it
