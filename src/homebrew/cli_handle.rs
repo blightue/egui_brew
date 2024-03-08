@@ -4,6 +4,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+// TODO: use channel to get and set stdout/stdin/child on another thread, for avoiding read stdout blocking
 pub struct CliHandle {
     pub stdout: BufReader<ChildStdout>,
     pub stdin: BufWriter<ChildStdin>,
