@@ -5,6 +5,8 @@ A macOS GUI application for package manager [Homebrew](https://brew.sh/) which i
 ![GitHub License](https://img.shields.io/github/license/blightue/brew_egui)
 ![GitHub Release](https://img.shields.io/github/v/release/blightue/brew_egui)
 
+![demo](/assets/images/Demo_0.1.0.png)
+
 ## Features
 | Feature        | Impl version | Detail                                                               |
 | -------------- | ------------ | -------------------------------------------------------------------- |
