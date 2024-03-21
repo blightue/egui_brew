@@ -503,20 +503,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "brew_egui"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "eframe",
- "egui",
- "egui_extras",
- "image",
- "serde",
- "serde_json",
- "tokio",
-]
-
-[[package]]
 name = "bumpalo"
 version = "3.15.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -879,6 +865,20 @@ dependencies = [
  "web-time",
  "webbrowser",
  "winit",
+]
+
+[[package]]
+name = "egui_brew"
+version = "0.1.1"
+dependencies = [
+ "async-trait",
+ "eframe",
+ "egui",
+ "egui_extras",
+ "image",
+ "serde",
+ "serde_json",
+ "tokio",
 ]
 
 [[package]]
