@@ -57,8 +57,12 @@ jobs:
 
       - name: Archive production artifacts
         run: |
-          zip -r EGUI_Brew_x86_64.zip ./target/x86_64-apple-darwin/release/bundle/osx/EGUI_Brew.app
-          zip -r EGUI_Brew_aarch64.zip ./target/aarch64-apple-darwin/release/bundle/osx/EGUI_Brew.app
+          cd ./target/x86_64-apple-darwin/release/bundle/osx/
+          zip -r -j ../../../EGUI_Brew_x86_64.zip EGUI_Brew.app
+          cd -
+          cd ./target/aarch64-apple-darwin/release/bundle/osx/
+          zip -r -j ../../../EGUI_Brew_aarch64.zip EGUI_Brew.app
+          cd -
 
       - name: Create Release
         id: create_release
@@ -67,7 +71,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.get_version.outputs.version }}
-          release_name: Release ${{ steps.get_version.outputs.version }}
+          release_name: ${{ steps.get_version.outputs.version }}
           draft: false
           prerelease: false
 
