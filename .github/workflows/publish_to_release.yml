@@ -58,10 +58,10 @@ jobs:
       - name: Archive production artifacts
         run: |
           cd ./target/x86_64-apple-darwin/release/bundle/osx/
-          zip -r -j ../../../EGUI_Brew_x86_64.zip EGUI_Brew.app
+          zip -r ../../../../../EGUI_Brew_aarch64.zip EGUI_Brew.app
           cd -
           cd ./target/aarch64-apple-darwin/release/bundle/osx/
-          zip -r -j ../../../EGUI_Brew_aarch64.zip EGUI_Brew.app
+          zip -r ../../../../../EGUI_Brew_aarch64.zip EGUI_Brew.app
           cd -
 
       - name: Create Release
