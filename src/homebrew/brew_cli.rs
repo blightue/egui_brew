@@ -171,8 +171,6 @@ impl BrewCli {
 #[cfg(test)]
 mod tests {
 
-    use std::io::BufRead;
-
     use super::*;
 
     #[tokio::test]
@@ -211,15 +209,10 @@ mod tests {
     fn test_install_package() {
         let result =
             BrewCli::manage_package("qbittorrent", PackageType::Cask, PkgManageType::Install);
-        if let Ok(mut handle) = result {
-            let mut buffer = String::new();
+        if let Ok(handle) = result {
             loop {
-                if let Ok(size) = handle.cli_handle.stdout.read_line(&mut buffer) {
-                    if size == 0 {
-                        break;
-                    }
-                    println!("{}", buffer);
-                    buffer.clear();
+                if let Ok(output) = handle.cli_handle.stdout.try_recv() {
+                    println!("{}", output);
                 }
             }
         }
@@ -229,15 +222,10 @@ mod tests {
     fn test_uninstall_package() {
         let result =
             BrewCli::manage_package("qbittorrent", PackageType::Cask, PkgManageType::Uninstall);
-        if let Ok(mut handle) = result {
-            let mut buffer = String::new();
+        if let Ok(handle) = result {
             loop {
-                if let Ok(size) = handle.cli_handle.stdout.read_line(&mut buffer) {
-                    if size == 0 {
-                        break;
-                    }
-                    println!("{}", buffer);
-                    buffer.clear();
+                if let Ok(output) = handle.cli_handle.stdout.try_recv() {
+                    println!("{}", output);
                 }
             }
         }

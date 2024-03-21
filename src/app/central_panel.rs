@@ -1,5 +1,3 @@
-use std::io::BufRead;
-
 use egui::{Button, Grid, Label, ScrollArea};
 
 use crate::homebrew::{
@@ -52,13 +50,11 @@ impl CentralPanel {
     }
 
     fn update_clihandle(&mut self) {
-        if let Some(mut clihandle) = self.current_clihandle.take() {
-            let mut line = String::new();
-            if let Ok(size) = clihandle.cli_handle.stdout.read_line(&mut line) {
-                if size > 0 {
-                    let line = line.trim_end_matches("\n").to_string();
-                    self.command_output.push(line);
-                }
+        if let Some(clihandle) = self.current_clihandle.take() {
+            // let mut line = String::new();
+            if let Ok(output) = clihandle.cli_handle.stdout.try_recv() {
+                let line = output.trim_end_matches("\n").to_string();
+                self.command_output.push(line);
             }
             let status = clihandle.cli_handle.child.lock().unwrap().try_wait();
             if let Ok(Some(status)) = status {
