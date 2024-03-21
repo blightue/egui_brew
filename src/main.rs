@@ -1,13 +1,13 @@
-use brew_egui::app::{app_icon::app_icon, mainapp::MainApp};
 use eframe::egui;
 use egui::ViewportBuilder;
+use egui_brew::app::{app_icon::app_icon, mainapp::MainApp};
 
 #[tokio::main]
 async fn main() -> Result<(), eframe::Error> {
     std::env::set_var("PATH", "/opt/homebrew/bin:/usr/local");
     let options = eframe::NativeOptions {
         viewport: ViewportBuilder {
-            title: Some("Brew_EGUI".to_owned()),
+            title: Some("EGUI_Brew".to_owned()),
             inner_size: Some(egui::vec2(800.0, 600.0)),
             ..Default::default()
         }
@@ -16,7 +16,7 @@ async fn main() -> Result<(), eframe::Error> {
     };
 
     eframe::run_native(
-        "Brew_EGUI",
+        "EGUI_Brew",
         options,
         Box::new(|_cc| Box::new(MainApp::new())),
     )
