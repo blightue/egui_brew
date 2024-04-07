@@ -76,6 +76,10 @@ impl CentralPanel {
         }
     }
 
+    pub fn push_console(&mut self, line: String) {
+        self.command_output.push(line);
+    }
+
     fn update_pkg_state(&mut self, manage_type: PkgManageType) {
         if let Some(package) = &mut self.current_package {
             package.package_state = match manage_type {

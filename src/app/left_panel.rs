@@ -7,8 +7,9 @@ use crate::homebrew::{
 };
 
 pub struct LeftPanel {
-    packages: Option<PackageList>,
+    pub packages: Option<PackageList>,
     pub selected_package: Option<PackageBrief>,
+    pub is_pkglist_loaded: bool,
     filter: PackageFilter,
 }
 
@@ -17,13 +18,14 @@ impl LeftPanel {
         Self {
             packages: None,
             selected_package: None,
+            is_pkglist_loaded: false,
             filter: PackageFilter::new(),
         }
     }
 
-    pub fn set_packages(&mut self, packages: PackageList) {
-        self.packages = Some(packages);
-    }
+    // pub fn set_packages(&mut self, packages: PackageList) {
+    //     self.packages = Some(packages);
+    // }
 
     pub fn update_package_state(&mut self, package: String, state: PackageState) {
         if let Some(packages) = &mut self.packages {
@@ -52,6 +54,12 @@ impl LeftPanel {
         ui.spacing();
 
         if let Some(packages) = &self.packages {
+            if !self.is_pkglist_loaded {
+                ui.horizontal(|ui| {
+                    ui.label("Still loading...");
+                    ui.spinner();
+                });
+            }
             if !self.filter.name_filter.is_empty() {
                 ui.label(format!("Searching for {}", self.filter.name_filter));
             }

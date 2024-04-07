@@ -8,19 +8,11 @@ pub struct PackageBrief {
 }
 
 impl PackageBrief {
-    pub fn new(name: String, package_type: PackageType, installed: bool, outdated: bool) -> Self {
+    pub fn new(name: String, package_type: PackageType, package_state: PackageState) -> Self {
         Self {
             name: name,
             package_type: package_type,
-            package_state: if installed {
-                if outdated {
-                    PackageState::Outdated
-                } else {
-                    PackageState::Installed
-                }
-            } else {
-                PackageState::Installable
-            },
+            package_state: package_state,
         }
     }
 }
@@ -31,6 +23,7 @@ impl Display for PackageBrief {
             PackageState::Installable => "🌐",
             PackageState::Installed => "💾",
             PackageState::Outdated => "🔄",
+            PackageState::Undefined => "❓",
         };
         let tail_fix = match self.package_type {
             PackageType::Formula => "📦",
@@ -70,4 +63,5 @@ pub enum PackageState {
     Installable,
     Installed,
     Outdated,
+    Undefined,
 }

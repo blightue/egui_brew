@@ -38,6 +38,7 @@ impl PackageFilter {
             PackageState::Installable => self.state_filter.is_installable,
             PackageState::Installed => self.state_filter.is_installed,
             PackageState::Outdated => self.state_filter.is_outdated,
+            PackageState::Undefined => true,
         };
 
         if !state_filtered {

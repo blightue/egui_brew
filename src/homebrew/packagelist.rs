@@ -5,7 +5,7 @@ use std::fmt::Display;
 
 use super::{
     async_loader::Load,
-    package_model::{PackageBrief, PackageType},
+    package_model::{PackageBrief, PackageState, PackageType},
 };
 
 // type CliVecOutput = CliResult<CliOutput<Vec<String>>>;
@@ -78,9 +78,71 @@ impl PackageList {
         for package in all {
             let installed = installed.contains(&package);
             let outdated = outdated.contains(&package);
-            let package_state =
-                PackageBrief::new(package.into(), package_type.clone(), installed, outdated);
-            self.list.push(package_state);
+            // let package_state =
+            //     PackageBrief::new(package.into(), package_type.clone(), installed, outdated);
+            // self.list.push(package_state);
+        }
+    }
+
+    pub fn from_all(all_formulae_list: Vec<String>, all_casks_list: Vec<String>) -> Self {
+        let mut list = vec![];
+        for formula in all_formulae_list {
+            list.push(PackageBrief::new(
+                formula,
+                PackageType::Formula,
+                PackageState::Undefined,
+            ));
+        }
+        for cask in all_casks_list {
+            list.push(PackageBrief::new(
+                cask,
+                PackageType::Cask,
+                PackageState::Undefined,
+            ));
+        }
+        list.sort_by(|a, b| a.name.cmp(&b.name));
+        Self { list: list }
+    }
+
+    pub fn push_installed(
+        &mut self,
+        installed_formulae: Vec<String>,
+        installed_casks: Vec<String>,
+    ) {
+        for package in &mut self.list {
+            match package.package_type {
+                PackageType::Formula => {
+                    if installed_formulae.contains(&package.name) {
+                        package.package_state = PackageState::Installed;
+                    } else {
+                        package.package_state = PackageState::Installable;
+                    }
+                }
+                PackageType::Cask => {
+                    if installed_casks.contains(&package.name) {
+                        package.package_state = PackageState::Installed;
+                    } else {
+                        package.package_state = PackageState::Installable;
+                    }
+                }
+            }
+        }
+    }
+
+    pub fn push_outdated(&mut self, outdated_formulae: Vec<String>, outdated_casks: Vec<String>) {
+        for package in &mut self.list {
+            match package.package_type {
+                PackageType::Formula => {
+                    if outdated_formulae.contains(&package.name) {
+                        package.package_state = PackageState::Outdated;
+                    }
+                }
+                PackageType::Cask => {
+                    if outdated_casks.contains(&package.name) {
+                        package.package_state = PackageState::Outdated;
+                    }
+                }
+            }
         }
     }
 }

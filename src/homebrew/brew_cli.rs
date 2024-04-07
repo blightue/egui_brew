@@ -230,4 +230,23 @@ mod tests {
             }
         }
     }
+
+    #[tokio::test]
+    async fn test_packagelist_count() {
+        let all_formulae = BrewCli::list_installable_formulae().await.unwrap().result;
+        let installed_formulae = BrewCli::list_installed_formula().await.unwrap().result;
+        let outdated_formulae = BrewCli::list_outdated_formulae().await.unwrap().result;
+
+        for formula in &installed_formulae {
+            assert!(all_formulae.contains(&formula));
+        }
+
+        for formula in &outdated_formulae {
+            assert!(all_formulae.contains(&formula));
+        }
+
+        for formula in &outdated_formulae {
+            assert!(installed_formulae.contains(&formula));
+        }
+    }
 }
