@@ -8,16 +8,17 @@ A macOS GUI application for package manager [Homebrew](https://brew.sh/) which i
 ![demo](/assets/images/Demo_0.1.0.png)
 
 ## Features
-| Feature        | Impl version | Detail                                                               |
-| -------------- | ------------ | -------------------------------------------------------------------- |
-| Package Query  | 0.1.0(init)  | Filter by Formula/Cask Installable/Installed/Outdated Search by name |
-| Package Manage | 0.1.0(init)  | Install/Uninstall/Upgrade pkg                                        |
+| Feature          | Impl version | Detail                                                               |
+| ---------------- | ------------ | -------------------------------------------------------------------- |
+| Package Query    | 0.1.0(init)  | Filter by Formula/Cask Installable/Installed/Outdated Search by name |
+| Package Manage   | 0.1.0(init)  | Install/Uninstall/Upgrade pkg                                        |
+| Progressive Load | 0.2.0        | Progressive loading package listthread                               |
 
 ## Todolist
 - [ ] CI/CD auto distribute
 - [ ] manage package behind proxy
 - [ ] homebrew cli test and init
-- [ ] progressive loading package list
+- [x] progressive loading package list
 - [ ] multi-pkg manage
 
 ## How to use

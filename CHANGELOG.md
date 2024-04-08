@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] 2024-04-08
+
+### Added
+
+- Implement package list progressing loading.
+
 ## [0.1.0] 2024-03-07
 
 ### Added
