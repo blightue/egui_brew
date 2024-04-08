@@ -2,7 +2,7 @@ use async_trait::async_trait;
 
 use super::{async_loader::Load, brew_cli::BrewCli, package_model::PackageState};
 
-pub struct PackageAllNameListLoader {
+pub struct TotalPackageNameListLoader {
     installable_name_loader: PackageNameListLoader,
     installed_name_loader: PackageNameListLoader,
     outdated_name_loader: PackageNameListLoader,
@@ -12,7 +12,7 @@ pub struct PackageAllNameListLoader {
     pub is_outdated_retrieved: bool,
 }
 
-impl PackageAllNameListLoader {
+impl TotalPackageNameListLoader {
     pub fn new() -> Self {
         Self {
             installable_name_loader: PackageNameListLoader::new(PackageNameList::new(
@@ -38,7 +38,7 @@ impl PackageAllNameListLoader {
             _ => panic!("Invalid PackageState"),
         };
 
-        if result.is_some() {
+        if let Some(_) = result {
             match state {
                 PackageState::Installable => self.is_installable_retrieved = true,
                 PackageState::Installed => self.is_installed_retrieved = true,

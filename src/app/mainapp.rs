@@ -1,9 +1,8 @@
+use crate::homebrew::package_brief_list::PackageBriefList;
 use crate::homebrew::package_model::PackageState;
-use crate::homebrew::package_name_list::{PackageAllNameListLoader, PackageNameListLoader};
-use crate::homebrew::packagelist::PackageList;
+use crate::homebrew::package_name_list::TotalPackageNameListLoader;
 use crate::homebrew::pkg_cli_handle::PkgManageType;
 
-use super::super::homebrew::packagelist::PackageListLoader;
 use super::central_panel::CentralPanel;
 use super::left_panel::LeftPanel;
 use eframe::egui;
@@ -11,7 +10,7 @@ use eframe::egui;
 pub struct MainApp {
     left_panel: LeftPanel,
     central_panel: CentralPanel,
-    package_list_loader: PackageAllNameListLoader,
+    package_list_loader: TotalPackageNameListLoader,
     // is_loaded: bool,
 }
 
@@ -20,7 +19,7 @@ impl MainApp {
         Self {
             left_panel: LeftPanel::new(),
             central_panel: CentralPanel::new(),
-            package_list_loader: PackageAllNameListLoader::new(),
+            package_list_loader: TotalPackageNameListLoader::new(),
             // package_list_loader: PackageListLoader::new(PackageList::new()),
             // is_loaded: false,
         }
@@ -40,7 +39,7 @@ impl eframe::App for MainApp {
                     &package_list.formulae.len(),
                     &package_list.casks.len()
                 ));
-                self.left_panel.packages = Some(PackageList::from_all(
+                self.left_panel.packages = Some(PackageBriefList::from_all(
                     package_list.formulae,
                     package_list.casks,
                 ));

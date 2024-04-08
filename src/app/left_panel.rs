@@ -1,13 +1,13 @@
 use egui::TextStyle;
 
 use crate::homebrew::{
+    package_brief_list::PackageBriefList,
     package_filter::PackageFilter,
     package_model::{PackageBrief, PackageState},
-    packagelist::PackageList,
 };
 
 pub struct LeftPanel {
-    pub packages: Option<PackageList>,
+    pub packages: Option<PackageBriefList>,
     pub selected_package: Option<PackageBrief>,
     pub is_pkglist_loaded: bool,
     filter: PackageFilter,
