@@ -1,31 +1,93 @@
+use std::collections::VecDeque;
+
 use egui::TextStyle;
 
 use crate::homebrew::{
     package_brief_list::PackageBriefList,
     package_filter::PackageFilter,
     package_model::{PackageBrief, PackageState},
+    package_name_list::TotalPackageNameListLoader,
 };
+
+use super::ConsoleOutput;
 
 pub struct LeftPanel {
     pub packages: Option<PackageBriefList>,
     pub selected_package: Option<PackageBrief>,
-    pub is_pkglist_loaded: bool,
     filter: PackageFilter,
+    package_list_loader: TotalPackageNameListLoader,
+    output_queue: VecDeque<String>,
+}
+
+impl ConsoleOutput for LeftPanel {
+    fn retrieve_output(&mut self) -> Option<String> {
+        self.output_queue.pop_front()
+    }
 }
 
 impl LeftPanel {
     pub fn new() -> Self {
-        Self {
+        let mut instance = Self {
             packages: None,
             selected_package: None,
-            is_pkglist_loaded: false,
             filter: PackageFilter::new(),
-        }
+            package_list_loader: TotalPackageNameListLoader::new(),
+            output_queue: VecDeque::new(),
+        };
+        instance
+            .output_queue
+            .push_back("Start loading package list...".to_string());
+        instance
     }
 
-    // pub fn set_packages(&mut self, packages: PackageList) {
-    //     self.packages = Some(packages);
-    // }
+    pub fn update_package_loader(&mut self) {
+        if !self.package_list_loader.is_installable_retrieved {
+            if let Some(package_list) = self
+                .package_list_loader
+                .get_by_state(PackageState::Installable)
+            {
+                self.output_queue.push_back(format!(
+                    "Installable packages loaded: {} Formulae, {} Casks",
+                    &package_list.formulae.len(),
+                    &package_list.casks.len()
+                ));
+                self.packages = Some(PackageBriefList::from_all(
+                    package_list.formulae,
+                    package_list.casks,
+                ));
+            }
+        } else if !self.package_list_loader.is_installed_retrieved {
+            if let Some(package_list) = self
+                .package_list_loader
+                .get_by_state(PackageState::Installed)
+            {
+                self.output_queue.push_back(format!(
+                    "Installed packages loaded: {} Formulae, {} Casks",
+                    &package_list.formulae.len(),
+                    &package_list.casks.len()
+                ));
+                if let Some(packagelist) = self.packages.as_mut() {
+                    packagelist.push_installed(package_list.formulae, package_list.casks);
+                }
+            }
+        } else if !self.package_list_loader.is_outdated_retrieved {
+            if let Some(package_list) = self
+                .package_list_loader
+                .get_by_state(PackageState::Outdated)
+            {
+                self.output_queue.push_back(format!(
+                    "Outdated packages loaded: {} Formulae, {} Casks",
+                    &package_list.formulae.len(),
+                    &package_list.casks.len()
+                ));
+                self.output_queue
+                    .push_back("Total packages loaded".to_string());
+                if let Some(packagelist) = self.packages.as_mut() {
+                    packagelist.push_outdated(package_list.formulae, package_list.casks);
+                }
+            }
+        }
+    }
 
     pub fn update_package_state(&mut self, package: String, state: PackageState) {
         if let Some(packages) = &mut self.packages {
@@ -53,13 +115,21 @@ impl LeftPanel {
 
         ui.spacing();
 
+        if !self.package_list_loader.is_outdated_retrieved {
+            ui.horizontal(|ui| {
+                if !self.package_list_loader.is_installed_retrieved {
+                    if !self.package_list_loader.is_installable_retrieved {
+                        ui.label("Loading installable packages...");
+                    } else {
+                        ui.label("Loading installed packages...");
+                    }
+                } else {
+                    ui.label("Loading outdated packages...");
+                }
+                ui.spinner();
+            });
+        }
         if let Some(packages) = &self.packages {
-            if !self.is_pkglist_loaded {
-                ui.horizontal(|ui| {
-                    ui.label("Still loading...");
-                    ui.spinner();
-                });
-            }
             if !self.filter.name_filter.is_empty() {
                 ui.label(format!("Searching for {}", self.filter.name_filter));
             }
@@ -71,11 +141,6 @@ impl LeftPanel {
                 .collect();
 
             self.show_listview(ui, contents);
-        } else {
-            ui.horizontal(|ui| {
-                ui.label("Loading...");
-                ui.spinner();
-            });
         }
     }
 

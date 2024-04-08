@@ -7,6 +7,10 @@ mod left_panel;
 
 use std::fmt;
 
+pub trait ConsoleOutput {
+    fn retrieve_output(&mut self) -> Option<String>;
+}
+
 #[derive(Debug, PartialEq)]
 pub enum WindowsTab {
     Browser,
