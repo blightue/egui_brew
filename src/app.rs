@@ -3,7 +3,7 @@ pub mod mainapp;
 
 mod central_panel;
 mod left_panel;
-mod top_panel;
+// mod top_panel;
 
 use std::fmt;
 

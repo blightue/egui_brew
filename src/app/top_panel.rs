@@ -1,4 +1,4 @@
-use super::WindowsTab;
+/*use super::WindowsTab;
 
 pub struct TopPanel {
     pub current_tab: WindowsTab,
@@ -37,3 +37,4 @@ impl TopPanel {
         });
     }
 }
+*/
