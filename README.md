@@ -26,8 +26,10 @@ A macOS GUI application for package manager [Homebrew](https://brew.sh/) which i
 ### Download prebuilt app
 
 1. Download the latest version from [release](https://github.com/blightue/egui_brew/releases)
-2. Unzip the file and move the app to the Application folder
-3. Open the app and enjoy it
+2. Unzip the file and open EGUI_Brew.app
+   > There is no certification for egui_brew at the current time, so it's necessary to bypass it by opening with (command ⌘ + right click -> open)
+4. Move the app to the Application folder
+5. Open the app and enjoy it
 
 ### Build from source
 1. Clone the repo
